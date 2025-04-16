@@ -169,6 +169,25 @@
             opacity: 1;
         }
         
+        /* エラーメッセージのスタイル */
+        .error-message {
+            color: #ffcccc;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .form-control.error {
+            border-color: #ffcccc;
+        }
+
+        /* 必須項目のラベル */
+        .required::after {
+            content: '*';
+            color: #ffcccc;
+            margin-left: 4px;
+        }
+        
         /* レスポンシブ対応 */
         @media (min-width: 768px) {
             .form-row {
@@ -210,24 +229,28 @@
         <form id="heatmapForm">
             <div class="form-row">
                 <div class="form-group">
-                    <label for="property_id">プロパティID</label>
-                    <input type="text" id="property_id" name="property_id" class="form-control" placeholder="プロパティIDを入力（オプション）">
+                    <label for="property_id" class="required">プロパティID</label>
+                    <input type="text" id="property_id" name="property_id" class="form-control" placeholder="プロパティIDを入力" required>
+                    <p class="error-message" id="propertyIdError">プロパティIDを入力してください</p>
                 </div>
                 <div class="form-group">
-                    <label for="url">URL</label>
-                    <input type="url" id="url" name="url" class="form-control" placeholder="URLを入力">
+                    <label for="url" class="required">URL</label>
+                    <input type="url" id="url" name="url" class="form-control" placeholder="URLを入力" required>
+                    <p class="error-message" id="urlError">URLを入力してください</p>
                 </div>
             </div>
             
             <div class="form-row">
                 <div class="form-group">
-                    <label for="start_date">開始日</label>
-                    <input type="date" id="start_date" name="start_date" class="form-control">
+                    <label for="start_date" class="required">開始日</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control" required>
+                    <p class="error-message" id="startDateError">開始日を選択してください</p>
                 </div>
                 
                 <div class="form-group">
-                    <label for="end_date">終了日</label>
-                    <input type="date" id="end_date" name="end_date" class="form-control">
+                    <label for="end_date" class="required">終了日</label>
+                    <input type="date" id="end_date" name="end_date" class="form-control" required>
+                    <p class="error-message" id="endDateError">終了日を選択してください</p>
                 </div>
             </div>
             
@@ -237,7 +260,7 @@
             </div>
             
             <div class="form-group">
-                <label>ヒートマップ画像</label>
+                <label class="required">ヒートマップ画像</label>
                 <div class="upload-container">
                     <label for="fileUpload" class="upload-btn">
                         <i class="fa fa-upload"></i>
@@ -250,10 +273,11 @@
                 </div>
                 <input type="file" id="fileUpload" name="heatmap_image" style="display: none;">
                 <input type="text" id="linkUpload" name="image_url" style="display: none;" class="form-control" placeholder="画像URLを入力">
+                <p class="error-message" id="heatmapError">ヒートマップ画像をアップロードまたはURLを入力してください</p>
             </div>
             
             <div class="form-group">
-                <label>LP_Research</label>
+                <label class="required">LP_Research</label>
                 <div class="upload-container">
                     <label for="lpFileUpload" class="upload-btn">
                         <i class="fa fa-upload"></i>
@@ -266,6 +290,7 @@
                 </div>
                 <input type="file" id="lpFileUpload" name="lp_research_file" style="display: none;">
                 <input type="text" id="lpLinkUpload" name="lp_research_url" style="display: none;" class="form-control" placeholder="ファイルURLを入力">
+                <p class="error-message" id="lpResearchError">LP_ResearchファイルをアップロードまたはURLを入力してください</p>
             </div>
             
             <button type="submit" class="btn-primary">
@@ -280,21 +305,108 @@
     <script>
         // 認証チェック
         document.addEventListener('DOMContentLoaded', () => {
-            // セッションストレージから認証情報を取得
             const isAuthenticated = sessionStorage.getItem('authenticated');
             
-            // 認証されていない場合、ログインページにリダイレクト
             if (!isAuthenticated) {
                 window.location.href = 'index.html';
                 return;
             }
             
-            // 日付フィールドの初期化
-            // 開始日と終了日を特定の日付に設定（4/3 - 4/10）
+            // フォームの要素を取得
+            const form = document.getElementById('heatmapForm');
+            const propertyIdInput = document.getElementById('property_id');
+            const urlInput = document.getElementById('url');
+            const startDateInput = document.getElementById('start_date');
+            const endDateInput = document.getElementById('end_date');
+            const fileUpload = document.getElementById('fileUpload');
+            const linkUpload = document.getElementById('linkUpload');
+            const lpFileUpload = document.getElementById('lpFileUpload');
+            const lpLinkUpload = document.getElementById('lpLinkUpload');
+
+            // エラーメッセージ要素
+            const propertyIdError = document.getElementById('propertyIdError');
+            const urlError = document.getElementById('urlError');
+            const startDateError = document.getElementById('startDateError');
+            const endDateError = document.getElementById('endDateError');
+            const heatmapError = document.getElementById('heatmapError');
+            const lpResearchError = document.getElementById('lpResearchError');
+
+            // 入力フィールドのバリデーション関数
+            function validateField(input, errorElement) {
+                if (!input.value) {
+                    input.classList.add('error');
+                    errorElement.style.display = 'block';
+                    return false;
+                } else {
+                    input.classList.remove('error');
+                    errorElement.style.display = 'none';
+                    return true;
+                }
+            }
+
+            // ファイルアップロードのバリデーション関数
+            function validateFileUpload(fileInput, linkInput, errorElement) {
+                if (!fileInput.files.length && !linkInput.value) {
+                    errorElement.style.display = 'block';
+                    return false;
+                } else {
+                    errorElement.style.display = 'none';
+                    return true;
+                }
+            }
+
+            // フォーム送信時のバリデーション
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // 各フィールドのバリデーション
+                const isPropertyIdValid = validateField(propertyIdInput, propertyIdError);
+                const isUrlValid = validateField(urlInput, urlError);
+                const isStartDateValid = validateField(startDateInput, startDateError);
+                const isEndDateValid = validateField(endDateInput, endDateError);
+                const isHeatmapValid = validateFileUpload(fileUpload, linkUpload, heatmapError);
+                const isLpResearchValid = validateFileUpload(lpFileUpload, lpLinkUpload, lpResearchError);
+
+                // 日付の比較バリデーション
+                if (isStartDateValid && isEndDateValid) {
+                    if (new Date(startDateInput.value) > new Date(endDateInput.value)) {
+                        endDateInput.classList.add('error');
+                        endDateError.textContent = '終了日は開始日より後の日付を選択してください';
+                        endDateError.style.display = 'block';
+                        return;
+                    }
+                }
+
+                // すべてのバリデーションが成功した場合のみ送信処理を実行
+                if (isPropertyIdValid && isUrlValid && isStartDateValid && isEndDateValid && 
+                    isHeatmapValid && isLpResearchValid) {
+                    // アニメーション効果
+                    const submitBtn = document.querySelector('.btn-primary');
+                    submitBtn.style.opacity = '0.8';
+                    submitBtn.innerHTML = '処理中...';
+                    
+                    // フォームデータ取得
+                    const formData = new FormData(this);
+                    
+                    // URLパラメータの準備
+                    const urlParams = new URLSearchParams();
+                    for (let [key, value] of formData.entries()) {
+                        if (!(value instanceof File) || value.name) {
+                            urlParams.append(key, value);
+                        }
+                    }
+                    
+                    // loading.htmlへリダイレクト
+                    setTimeout(() => {
+                        window.location.href = `loading.html?${urlParams.toString()}`;
+                    }, 500);
+                }
+            });
+
+            // 初期値の設定
             document.getElementById('start_date').value = '2025-04-03';
             document.getElementById('end_date').value = '2025-04-10';
             
-            // ファイルアップロード表示用
             document.getElementById('fileUpload').addEventListener('change', function(e) {
                 if (this.files && this.files[0]) {
                     const fileName = this.files[0].name;
@@ -304,7 +416,6 @@
                 }
             });
             
-            // ファイルリンクボタンクリック時の処理
             document.querySelector('.fa-link').parentElement.addEventListener('click', function() {
                 const linkInput = document.getElementById('linkUpload');
                 linkInput.style.display = linkInput.style.display === 'none' ? 'block' : 'none';
@@ -330,33 +441,6 @@
                 if (linkInput.style.display === 'block') {
                     linkInput.focus();
                 }
-            });
-            
-            // フォーム送信イベント
-            document.getElementById('heatmapForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // アニメーション効果
-                const submitBtn = document.querySelector('.btn-primary');
-                submitBtn.style.opacity = '0.8';
-                submitBtn.innerHTML = '処理中...';
-                
-                // フォームデータ取得
-                const formData = new FormData(this);
-                
-                // URLパラメータの準備
-                const urlParams = new URLSearchParams();
-                for (let [key, value] of formData.entries()) {
-                    // ファイル以外のフォームデータをURLパラメータに追加
-                    if (!(value instanceof File) || value.name) {
-                        urlParams.append(key, value);
-                    }
-                }
-                
-                // loading.htmlへリダイレクト
-                setTimeout(() => {
-                    window.location.href = `loading.html?${urlParams.toString()}`;
-                }, 500);
             });
         });
     </script>
