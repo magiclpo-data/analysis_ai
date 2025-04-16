@@ -148,43 +148,41 @@
     </div>
 
     <script>
-        // SHA-256ハッシュ関数の実装
+        // Base64エンコード/デコード用のヘルパー関数
+        function encodeBase64(str) {
+            return btoa(str);
+        }
+        
+        function decodeBase64(str) {
+            return atob(str);
+        }
+
+        // SHA-256ハッシュ関数
         async function sha256(message) {
-            // エンコード
             const msgBuffer = new TextEncoder().encode(message);
-            // ハッシュ化
             const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            // バイト配列を16進数文字列に変換
             const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            return hashHex;
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('passwordForm');
             const errorMessage = document.getElementById('errorMessage');
-            // パスワード「fwhfwh0902」のSHA-256ハッシュ値
-            const correctPasswordHash = '35c4ff10d04bcc9712c8bf63c2395a320b357bc895db97d167e704857e663b11';
+            
+            const encodedHash = 'MTFiMzY2ZTc1ODQwNzY3MWQ3OWJkNTk4Y2I3NTNiMDIzM2E1OTMyYzM2ZmI4YzIxNzljY2I0MGQwMWZmNGMzNQ==';
             
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 const password = document.getElementById('password').value;
-                // 入力されたパスワードをハッシュ化
-                const passwordHash = await sha256(password);
+                const inputHash = await sha256(password);
                 
-                // デバッグ用：コンソールにハッシュ値を表示
-                console.log('入力されたパスワード:', password);
-                console.log('生成されたハッシュ値:', passwordHash);
+                const correctHash = decodeBase64(encodedHash).split('').reverse().join('');
                 
-                // 正しいパスワード直接チェック（一時的な対応）
-                if (password === 'fwhfwh0902' || passwordHash === correctPasswordHash) {
-                    // 認証情報をセッションストレージに保存
+                if (inputHash === correctHash) {
                     sessionStorage.setItem('authenticated', 'true');
-                    // 正しいパスワードの場合、purple_form.htmlに遷移
                     window.location.href = 'purple_form.html';
                 } else {
-                    // 不正なパスワードの場合、エラーメッセージを表示
                     errorMessage.style.display = 'block';
                     document.getElementById('password').value = '';
                     setTimeout(() => {
