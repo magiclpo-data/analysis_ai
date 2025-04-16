@@ -189,23 +189,50 @@
             
             const loadingContainer = document.getElementById('loadingContainer');
             const resultContainer = document.getElementById('resultContainer');
+            const downloadBtn = document.getElementById('downloadBtn');
             
-            setTimeout(() => {
+            let pdfBlob = null;
+
+            // CloudFunctionを呼び出してPDFを取得
+            fetch('https://asia-northeast1-analysis-c73f6.cloudfunctions.net/generateAnalysis', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    propertyId,
+                    startDate,
+                    endDate
+                })
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                pdfBlob = blob;
                 loadingContainer.style.display = 'none';
                 resultContainer.style.display = 'block';
-            }, 12150);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('PDFの生成に失敗しました。もう一度お試しください。');
+            });
             
             // PDFダウンロードボタンのクリックイベント
-            document.getElementById('downloadBtn').addEventListener('click', function(e) {
+            downloadBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 
-                // ダウンロード用のリンク要素を作成
+                if (!pdfBlob) {
+                    alert('PDFの準備ができていません。しばらくお待ちください。');
+                    return;
+                }
+                
+                const url = window.URL.createObjectURL(pdfBlob);
                 const link = document.createElement('a');
-                link.href = 'analysis.pdf';
+                link.href = url;
                 link.download = `分析レポート_${propertyId}_${startDate}-${endDate}.pdf`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
             });
         });
     </script>
