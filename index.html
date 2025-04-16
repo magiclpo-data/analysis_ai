@@ -148,15 +148,6 @@
     </div>
 
     <script>
-        // Base64エンコード/デコード用のヘルパー関数
-        function encodeBase64(str) {
-            return btoa(str);
-        }
-        
-        function decodeBase64(str) {
-            return atob(str);
-        }
-
         // SHA-256ハッシュ関数
         async function sha256(message) {
             const msgBuffer = new TextEncoder().encode(message);
@@ -169,15 +160,13 @@
             const form = document.getElementById('passwordForm');
             const errorMessage = document.getElementById('errorMessage');
             
-            const encodedHash = 'MTFiMzY2ZTc1ODQwNzY3MWQ3OWJkNTk4Y2I3NTNiMDIzM2E1OTMyYzM2ZmI4YzIxNzljY2I0MGQwMWZmNGMzNQ==';
+            const correctHash = '641153abf66afdef6b0bcd62132680de9399e74f617e5dc722cfce24b5d40346';
             
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 const password = document.getElementById('password').value;
                 const inputHash = await sha256(password);
-                
-                const correctHash = decodeBase64(encodedHash).split('').reverse().join('');
                 
                 if (inputHash === correctHash) {
                     sessionStorage.setItem('authenticated', 'true');
