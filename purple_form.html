@@ -230,7 +230,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="property_id" class="required">プロパティID</label>
-                    <input type="text" id="property_id" name="property_id" class="form-control" placeholder="プロパティIDを入力" required>
+                    <input type="password" id="property_id" name="property_id" class="form-control" placeholder="プロパティIDを入力" required value="262336548">
                     <p class="error-message" id="propertyIdError">プロパティIDを入力してください</p>
                 </div>
                 <div class="form-group">
@@ -391,7 +391,7 @@
                     // URLパラメータの準備
                     const urlParams = new URLSearchParams();
                     for (let [key, value] of formData.entries()) {
-                        if (!(value instanceof File) || value.name) {
+                        if (key !== 'property_id' && (!(value instanceof File) || value.name)) {
                             urlParams.append(key, value);
                         }
                     }
