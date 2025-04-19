@@ -385,23 +385,128 @@
                     submitBtn.style.opacity = '0.8';
                     submitBtn.innerHTML = '処理中...';
                     
-                    // フォームデータ取得
-                    const formData = new FormData(this);
+                    // リクエストデータ作成
+                    const data = {
+                        property_id: propertyIdInput.value,
+                        url: urlInput.value,
+                        start_date: startDateInput.value,
+                        end_date: endDateInput.value,
+                        prompt: document.getElementById('prompt').value || ""
+                    };
                     
-                    // URLパラメータの準備
-                    const urlParams = new URLSearchParams();
-                    for (let [key, value] of formData.entries()) {
-                        if (key !== 'property_id' && (!(value instanceof File) || value.name)) {
-                            urlParams.append(key, value);
-                        }
+                    // ヒートマップ画像URLの追加
+                    if (linkUpload.value) {
+                        data.heatmap_image_url = linkUpload.value;
                     }
                     
-                    // loading.htmlへリダイレクト
-                    setTimeout(() => {
-                        window.location.href = `loading.html?${urlParams.toString()}`;
-                    }, 500);
+                    // LP_ResearchのURLの追加
+                    if (lpLinkUpload.value) {
+                        data.lp_research_url = lpLinkUpload.value;
+                    }
+                    
+                    // フォームデータ取得（ファイルアップロード用）
+                    const formData = new FormData(this);
+                    
+                    // ファイルが選択されている場合の処理
+                    let fileUploads = 0;
+                    let uploadPromises = [];
+                    
+                    if (fileUpload.files.length > 0) {
+                        fileUploads++;
+                        const uploadPromise = uploadFileToStorage(fileUpload.files[0], 'heatmap')
+                            .then(url => {
+                                data.heatmap_image_url = url;
+                            });
+                        uploadPromises.push(uploadPromise);
+                    }
+                    
+                    if (lpFileUpload.files.length > 0) {
+                        fileUploads++;
+                        const uploadPromise = uploadFileToStorage(lpFileUpload.files[0], 'lp_research')
+                            .then(url => {
+                                data.lp_research_url = url;
+                            });
+                        uploadPromises.push(uploadPromise);
+                    }
+                    
+                    // URLパラメータの準備（loading.htmlリダイレクト用）
+                    const urlParams = new URLSearchParams();
+                    urlParams.append('start_date', data.start_date);
+                    urlParams.append('end_date', data.end_date);
+                    urlParams.append('url', data.url);
+                    
+                    if (fileUploads > 0) {
+                        // ファイルアップロードがある場合、すべてのアップロードが完了してからAPIリクエスト
+                        Promise.all(uploadPromises)
+                            .then(() => {
+                                // Cloud Run関数にPOSTリクエスト
+                                return fetch('https://magiclpo-ai-1022361978287.asia-northeast1.run.app', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify(data)
+                                });
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('API request failed');
+                                }
+                                return response.json();
+                            })
+                            .then(result => {
+                                // 分析IDをURLパラメータに追加
+                                urlParams.append('analysis_id', result.analysis_id);
+                                // loading.htmlへリダイレクト
+                                window.location.href = `loading.html?${urlParams.toString()}`;
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                submitBtn.innerHTML = '実行';
+                                submitBtn.style.opacity = '1';
+                                alert('分析リクエストの送信に失敗しました。もう一度お試しください。');
+                            });
+                    } else {
+                        // ファイルアップロードがない場合、直接APIリクエスト
+                        fetch('https://magiclpo-ai-1022361978287.asia-northeast1.run.app', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(data)
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('API request failed');
+                            }
+                            return response.json();
+                        })
+                        .then(result => {
+                            // 分析IDをURLパラメータに追加
+                            urlParams.append('analysis_id', result.analysis_id);
+                            // loading.htmlへリダイレクト
+                            window.location.href = `loading.html?${urlParams.toString()}`;
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            submitBtn.innerHTML = '実行';
+                            submitBtn.style.opacity = '1';
+                            alert('分析リクエストの送信に失敗しました。もう一度お試しください。');
+                        });
+                    }
                 }
             });
+
+            // Cloud Storageへのファイルアップロード関数
+            function uploadFileToStorage(file, type) {
+                return new Promise((resolve, reject) => {
+                    // ここではダミーのURLを返す（実装時には実際のStorage APIを使用）
+                    // 実際の実装では、署名付きURLを取得してファイルをアップロードする
+                    setTimeout(() => {
+                        resolve(`https://storage.googleapis.com/magiclpo-storage/${type}_${Date.now()}.jpg`);
+                    }, 500);
+                });
+            }
 
             // 初期値の設定
             document.getElementById('start_date').value = '2025-04-03';
