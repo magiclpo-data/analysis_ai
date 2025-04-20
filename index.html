@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>改善提案フォーム</title>
+    <title>アクセス認証</title>
     <style>
         * {
             margin: 0;
@@ -21,19 +21,20 @@
             padding: 20px;
         }
         
-        .form-container {
+        .container {
             background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(106, 17, 203, 0.3);
             width: 85%;
-            max-width: 850px;
-            padding: 34px;
+            max-width: 550px;
+            padding: 40px;
             color: white;
             overflow: hidden;
             position: relative;
+            text-align: center;
         }
         
-        .form-container::before {
+        .container::before {
             content: '';
             position: absolute;
             top: -50%;
@@ -52,540 +53,130 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
+        .subtitle {
+            font-size: 16px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
         .form-group {
-            margin-bottom: 20px;
-            position: relative;
+            margin-bottom: 25px;
+            text-align: left;
         }
         
         .form-group label {
             display: block;
-            margin-bottom: 6px;
-            font-weight: 500;
-            font-size: 12px;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-size: 14px;
+            opacity: 0.9;
         }
         
-        .form-control {
+        .form-group input {
             width: 100%;
-            padding: 14px;
+            padding: 12px 15px;
             background: rgba(255, 255, 255, 0.15);
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 8px;
             color: white;
-            font-size: 14px;
+            font-size: 16px;
             transition: all 0.3s ease;
-            outline: none;
         }
         
-        .form-control::placeholder {
+        .form-group input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .form-group input::placeholder {
             color: rgba(255, 255, 255, 0.6);
         }
         
-        .form-control:focus {
-            background: rgba(255, 255, 255, 0.25);
-            border-color: white;
-            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
-        }
-        
-        textarea.form-control {
-            min-height: 100px;
-            resize: vertical;
-        }
-        
-        .upload-container {
-            display: flex;
-            gap: 12px;
-        }
-        
-        .upload-btn {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            padding: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 500;
-            font-size: 14px;
-        }
-        
-        .upload-btn:hover {
-            background: rgba(255, 255, 255, 0.25);
-            border-color: white;
-        }
-        
-        .upload-btn i {
-            margin-right: 8px;
-            font-size: 18px;
-        }
-        
-        .btn-primary {
-            width: 100%;
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
             background: white;
             color: #6a11cb;
             border: none;
             border-radius: 8px;
-            padding: 14px;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            text-decoration: none;
+            margin-top: 10px;
+            width: 100%;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         
-        .btn-primary:hover {
+        .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 16px rgba(0,0,0,0.15);
         }
         
-        .btn-primary i {
-            margin-left: 8px;
-            font-size: 18px;
-        }
-        
-        .btn-secondary {
-            background: transparent;
-            color: white;
-            border: none;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            width: 100%;
-            padding: 6px;
-            margin-top: 14px;
-            opacity: 0.8;
-        }
-        
-        .btn-secondary:hover {
-            opacity: 1;
-        }
-        
-        /* エラーメッセージのスタイル */
         .error-message {
             color: #ffcccc;
-            font-size: 12px;
-            margin-top: 4px;
+            font-size: 14px;
+            margin-top: 20px;
             display: none;
         }
-
-        .form-control.error {
-            border-color: #ffcccc;
-        }
-
-        /* 必須項目のラベル */
-        .required::after {
-            content: '*';
-            color: #ffcccc;
-            margin-left: 4px;
-        }
         
-        /* レスポンシブ対応 */
-        @media (min-width: 768px) {
-            .form-row {
-                display: flex;
-                gap: 16px;
-            }
-            
-            .form-row .form-group {
-                flex: 1;
-            }
-        }
-        
-        /* アイコンのスタイル */
-        .fa {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-        }
-        
-        .fa-upload {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z'/%3E%3C/svg%3E");
-        }
-        
-        .fa-link {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z'/%3E%3C/svg%3E");
-        }
-        
-        .fa-play {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%236a11cb' viewBox='0 0 24 24'%3E%3Cpath d='M8 5v14l11-7z'/%3E%3C/svg%3E");
+        .company-logo {
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 1px;
         }
     </style>
 </head>
 <body>
-    <div class="form-container">
-        <h1>分析改善提案</h1>
-        <form id="heatmapForm">
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="property_id" class="required">プロパティID</label>
-                    <input type="password" id="property_id" name="property_id" class="form-control" placeholder="プロパティIDを入力" required value="262336548">
-                    <p class="error-message" id="propertyIdError">プロパティIDを入力してください</p>
-                </div>
-                <div class="form-group">
-                    <label for="url" class="required">URL</label>
-                    <input type="url" id="url" name="url" class="form-control" placeholder="URLを入力" required>
-                    <p class="error-message" id="urlError">URLを入力してください</p>
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="start_date" class="required">開始日</label>
-                    <input type="date" id="start_date" name="start_date" class="form-control" required>
-                    <p class="error-message" id="startDateError">開始日を選択してください</p>
-                </div>
-                
-                <div class="form-group">
-                    <label for="end_date" class="required">終了日</label>
-                    <input type="date" id="end_date" name="end_date" class="form-control" required>
-                    <p class="error-message" id="endDateError">終了日を選択してください</p>
-                </div>
-            </div>
-            
+    <div class="container">
+        <div class="company-logo">分析提案サイト</div>
+        <h1>アクセス認証</h1>
+        <p class="subtitle">社内専用です。パスワードを入力してください。</p>
+        
+        <form id="passwordForm">
             <div class="form-group">
-                <label for="prompt">プロンプト</label>
-                <textarea id="prompt" name="prompt" class="form-control" placeholder="プロンプトを入力（オプション）"></textarea>
+                <label for="password">パスワード</label>
+                <input type="password" id="password" placeholder="パスワードを入力" required>
             </div>
             
-            <div class="form-group">
-                <label class="required">ヒートマップ画像</label>
-                <div class="upload-container">
-                    <label for="fileUpload" class="upload-btn">
-                        <i class="fa fa-upload"></i>
-                        ローカルアップロード
-                    </label>
-                    <label for="linkUpload" class="upload-btn">
-                        <i class="fa fa-link"></i>
-                        ファイルリンク
-                    </label>
-                </div>
-                <input type="file" id="fileUpload" name="heatmap_image" style="display: none;">
-                <input type="text" id="linkUpload" name="image_url" style="display: none;" class="form-control" placeholder="画像URLを入力">
-                <p class="error-message" id="heatmapError">ヒートマップ画像をアップロードまたはURLを入力してください</p>
-            </div>
+            <button type="submit" class="btn">アクセスする</button>
             
-            <div class="form-group">
-                <label class="required">LP_Research</label>
-                <div class="upload-container">
-                    <label for="lpFileUpload" class="upload-btn">
-                        <i class="fa fa-upload"></i>
-                        ローカルアップロード
-                    </label>
-                    <label for="lpLinkUpload" class="upload-btn">
-                        <i class="fa fa-link"></i>
-                        ファイルリンク
-                    </label>
-                </div>
-                <input type="file" id="lpFileUpload" name="lp_research_file" style="display: none;">
-                <input type="text" id="lpLinkUpload" name="lp_research_url" style="display: none;" class="form-control" placeholder="ファイルURLを入力">
-                <p class="error-message" id="lpResearchError">LP_ResearchファイルをアップロードまたはURLを入力してください</p>
-            </div>
-            
-            <button type="submit" class="btn-primary">
-                実行
-                <i class="fa fa-play"></i>
-            </button>
-            
-            <button type="reset" class="btn-secondary">クリア</button>
+            <p id="errorMessage" class="error-message">パスワードが正しくありません。再度お試しください。</p>
         </form>
     </div>
 
     <script>
-        // 認証チェック
-        document.addEventListener('DOMContentLoaded', () => {
-            const isAuthenticated = sessionStorage.getItem('authenticated');
+        // SHA-256ハッシュ関数
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('passwordForm');
+            const errorMessage = document.getElementById('errorMessage');
             
-            if (!isAuthenticated) {
-                window.location.href = 'index.html';
-                return;
-            }
+            const correctHash = '641153abf66afdef6b0bcd62132680de9399e74f617e5dc722cfce24b5d40346';
             
-            // フォームの要素を取得
-            const form = document.getElementById('heatmapForm');
-            const propertyIdInput = document.getElementById('property_id');
-            const urlInput = document.getElementById('url');
-            const startDateInput = document.getElementById('start_date');
-            const endDateInput = document.getElementById('end_date');
-            const fileUpload = document.getElementById('fileUpload');
-            const linkUpload = document.getElementById('linkUpload');
-            const lpFileUpload = document.getElementById('lpFileUpload');
-            const lpLinkUpload = document.getElementById('lpLinkUpload');
-
-            // エラーメッセージ要素
-            const propertyIdError = document.getElementById('propertyIdError');
-            const urlError = document.getElementById('urlError');
-            const startDateError = document.getElementById('startDateError');
-            const endDateError = document.getElementById('endDateError');
-            const heatmapError = document.getElementById('heatmapError');
-            const lpResearchError = document.getElementById('lpResearchError');
-
-            // 入力フィールドのバリデーション関数
-            function validateField(input, errorElement) {
-                if (!input.value) {
-                    input.classList.add('error');
-                    errorElement.style.display = 'block';
-                    return false;
-                } else {
-                    input.classList.remove('error');
-                    errorElement.style.display = 'none';
-                    return true;
-                }
-            }
-
-            // ファイルアップロードのバリデーション関数
-            function validateFileUpload(fileInput, linkInput, errorElement) {
-                if (!fileInput.files.length && !linkInput.value) {
-                    errorElement.style.display = 'block';
-                    return false;
-                } else {
-                    errorElement.style.display = 'none';
-                    return true;
-                }
-            }
-
-            // フォーム送信時のバリデーション
-            form.addEventListener('submit', function(e) {
+            form.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                // 各フィールドのバリデーション
-                const isPropertyIdValid = validateField(propertyIdInput, propertyIdError);
-                const isUrlValid = validateField(urlInput, urlError);
-                const isStartDateValid = validateField(startDateInput, startDateError);
-                const isEndDateValid = validateField(endDateInput, endDateError);
-                const isHeatmapValid = validateFileUpload(fileUpload, linkUpload, heatmapError);
-                const isLpResearchValid = validateFileUpload(lpFileUpload, lpLinkUpload, lpResearchError);
-
-                // 日付の比較バリデーション
-                if (isStartDateValid && isEndDateValid) {
-                    if (new Date(startDateInput.value) > new Date(endDateInput.value)) {
-                        endDateInput.classList.add('error');
-                        endDateError.textContent = '終了日は開始日より後の日付を選択してください';
-                        endDateError.style.display = 'block';
-                        return;
-                    }
-                }
-
-                // すべてのバリデーションが成功した場合のみ送信処理を実行
-                if (isPropertyIdValid && isUrlValid && isStartDateValid && isEndDateValid && 
-                    isHeatmapValid && isLpResearchValid) {
-                    // アニメーション効果
-                    const submitBtn = document.querySelector('.btn-primary');
-                    submitBtn.style.opacity = '0.8';
-                    submitBtn.innerHTML = '処理中...';
-                    
-                    // リクエストデータ作成
-                    const data = {
-                        command: "analyze_lp",
-                        property_id: propertyIdInput.value,
-                        url: urlInput.value,
-                        start_date: startDateInput.value,
-                        end_date: endDateInput.value,
-                        prompt: document.getElementById('prompt').value || ""
-                    };
-                    
-                    // ヒートマップ画像URLの追加
-                    if (linkUpload.value) {
-                        data.heatmap_image_url = linkUpload.value;
-                    }
-                    
-                    // LP_ResearchのURLの追加
-                    if (lpLinkUpload.value) {
-                        data.lp_research_url = lpLinkUpload.value;
-                    }
-                    
-                    // フォームデータ取得（ファイルアップロード用）
-                    const formData = new FormData(this);
-                    
-                    // ファイルが選択されている場合の処理
-                    let fileUploads = 0;
-                    let uploadPromises = [];
-                    
-                    if (fileUpload.files.length > 0) {
-                        fileUploads++;
-                        const uploadPromise = uploadFileToStorage(fileUpload.files[0], 'heatmap')
-                            .then(url => {
-                                data.heatmap_image_url = url;
-                            });
-                        uploadPromises.push(uploadPromise);
-                    }
-                    
-                    if (lpFileUpload.files.length > 0) {
-                        fileUploads++;
-                        const uploadPromise = uploadFileToStorage(lpFileUpload.files[0], 'lp_research')
-                            .then(url => {
-                                data.lp_research_url = url;
-                            });
-                        uploadPromises.push(uploadPromise);
-                    }
-                    
-                    // URLパラメータの準備（loading.htmlリダイレクト用）
-                    const urlParams = new URLSearchParams();
-                    urlParams.append('start_date', data.start_date);
-                    urlParams.append('end_date', data.end_date);
-                    urlParams.append('url', data.url);
-                    
-                    if (fileUploads > 0) {
-                        // ファイルアップロードがある場合、すべてのアップロードが完了してからAPIリクエスト
-                        Promise.all(uploadPromises)
-                            .then(() => {
-                                // リクエストデータを更新 - 画像URLがアップロードされた後
-                                const apiData = {
-                                    command: "analyze_lp",  // LPの分析
-                                    url: data.url,
-                                    property_id: data.property_id,
-                                    start_date: data.start_date,
-                                    end_date: data.end_date,
-                                    prompt: data.prompt
-                                };
-                                
-                                // ヒートマップ画像URLがある場合
-                                if (data.heatmap_image_url) {
-                                    apiData.image_url = data.heatmap_image_url;
-                                }
-                                
-                                // LP_ResearchのURLがある場合
-                                if (data.lp_research_url) {
-                                    apiData.lp_research_url = data.lp_research_url;
-                                }
-                                
-                                // Cloud Run関数にPOSTリクエスト
-                                return fetch('https://magiclpo-ai-new-1022361978287.us-central1.run.app/', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                    },
-                                    body: JSON.stringify(apiData)
-                                });
-                            })
-                            .then(response => {
-                                if (!response.ok) {
-                                    throw new Error('API request failed');
-                                }
-                                return response.json();
-                            })
-                            .then(result => {
-                                // 分析IDをURLパラメータに追加
-                                urlParams.append('analysis_id', result.analysis_id);
-                                // loading.htmlへリダイレクト
-                                window.location.href = `loading.html?${urlParams.toString()}`;
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                submitBtn.innerHTML = '実行';
-                                submitBtn.style.opacity = '1';
-                                alert('分析リクエストの送信に失敗しました。もう一度お試しください。');
-                            });
-                    } else {
-                        // ファイルアップロードがない場合、直接APIリクエスト
-                        // リクエストデータを整理
-                        const apiData = {
-                            command: "analyze_lp",  // LPの分析
-                            url: data.url,
-                            property_id: data.property_id,
-                            start_date: data.start_date,
-                            end_date: data.end_date,
-                            prompt: data.prompt
-                        };
-                        
-                        // ヒートマップ画像URLがある場合
-                        if (data.heatmap_image_url) {
-                            apiData.image_url = data.heatmap_image_url;
-                        }
-                        
-                        // LP_ResearchのURLがある場合
-                        if (data.lp_research_url) {
-                            apiData.lp_research_url = data.lp_research_url;
-                        }
-                        
-                        fetch('https://magiclpo-ai-new-1022361978287.us-central1.run.app/', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(apiData)
-                        })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('API request failed');
-                            }
-                            return response.json();
-                        })
-                        .then(result => {
-                            // 分析IDをURLパラメータに追加
-                            urlParams.append('analysis_id', result.analysis_id);
-                            // loading.htmlへリダイレクト
-                            window.location.href = `loading.html?${urlParams.toString()}`;
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            submitBtn.innerHTML = '実行';
-                            submitBtn.style.opacity = '1';
-                            alert('分析リクエストの送信に失敗しました。もう一度お試しください。');
-                        });
-                    }
-                }
-            });
-
-            // Cloud Storageへのファイルアップロード関数
-            function uploadFileToStorage(file, type) {
-                return new Promise((resolve, reject) => {
-                    // ここではダミーのURLを返す（実装時には実際のStorage APIを使用）
-                    // 実際の実装では、署名付きURLを取得してファイルをアップロードする
+                const password = document.getElementById('password').value;
+                const inputHash = await sha256(password);
+                
+                if (inputHash === correctHash) {
+                    sessionStorage.setItem('authenticated', 'true');
+                    window.location.href = 'purple_form.html';
+                } else {
+                    errorMessage.style.display = 'block';
+                    document.getElementById('password').value = '';
                     setTimeout(() => {
-                        resolve(`https://storage.googleapis.com/magiclpo-storage/${type}_${Date.now()}.jpg`);
-                    }, 500);
-                });
-            }
-
-            // 初期値の設定
-            document.getElementById('start_date').value = '2025-04-03';
-            document.getElementById('end_date').value = '2025-04-10';
-            
-            document.getElementById('fileUpload').addEventListener('change', function(e) {
-                if (this.files && this.files[0]) {
-                    const fileName = this.files[0].name;
-                    document.querySelector('.fa-upload').parentElement.textContent = fileName;
-                    document.querySelector('.fa-upload').parentElement.prepend(document.createElement('i'));
-                    document.querySelector('.fa-upload').parentElement.firstChild.className = 'fa fa-upload';
-                }
-            });
-            
-            document.querySelector('.fa-link').parentElement.addEventListener('click', function() {
-                const linkInput = document.getElementById('linkUpload');
-                linkInput.style.display = linkInput.style.display === 'none' ? 'block' : 'none';
-                if (linkInput.style.display === 'block') {
-                    linkInput.focus();
-                }
-            });
-            
-            // LP_Research ファイルアップロード表示用
-            document.getElementById('lpFileUpload').addEventListener('change', function(e) {
-                if (this.files && this.files[0]) {
-                    const fileName = this.files[0].name;
-                    this.previousElementSibling.textContent = fileName;
-                    this.previousElementSibling.prepend(document.createElement('i'));
-                    this.previousElementSibling.firstChild.className = 'fa fa-upload';
-                }
-            });
-            
-            // LP_Research ファイルリンクボタンクリック時の処理
-            document.querySelector('label[for="lpLinkUpload"]').addEventListener('click', function() {
-                const linkInput = document.getElementById('lpLinkUpload');
-                linkInput.style.display = linkInput.style.display === 'none' ? 'block' : 'none';
-                if (linkInput.style.display === 'block') {
-                    linkInput.focus();
+                        errorMessage.style.display = 'none';
+                    }, 3000);
                 }
             });
         });
