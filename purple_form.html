@@ -395,6 +395,9 @@
                         prompt: document.getElementById('prompt').value || ""
                     };
                     
+                    // デバッグ用にコンソールログを追加
+                    console.log('リクエストデータ（生）:', data);
+                    
                     // ヒートマップ画像URLの追加
                     if (linkUpload.value) {
                         data.heatmap_image_url = linkUpload.value;
@@ -404,6 +407,8 @@
                     if (lpLinkUpload.value) {
                         data.lp_research_url = lpLinkUpload.value;
                     }
+
+                    console.log('追加項目後のデータ:', data);
                     
                     // フォームデータ取得（ファイルアップロード用）
                     const formData = new FormData(this);
@@ -460,6 +465,9 @@
                                     apiData.lp_research_url = data.lp_research_url;
                                 }
                                 
+                                console.log('API送信データ (ファイルあり):', apiData);
+                                console.log('API送信JSON:', JSON.stringify(apiData));
+                                
                                 // Cloud Run関数にPOSTリクエスト
                                 return fetch('https://magiclpo-ai-new-1022361978287.us-central1.run.app/', {
                                     method: 'POST',
@@ -470,8 +478,12 @@
                                 });
                             })
                             .then(response => {
+                                console.log('APIレスポンスステータス:', response.status, response.statusText);
                                 if (!response.ok) {
-                                    throw new Error('API request failed');
+                                    return response.text().then(text => {
+                                        console.error('APIエラーレスポンス本文:', text);
+                                        throw new Error('API request failed');
+                                    });
                                 }
                                 return response.json();
                             })
@@ -509,6 +521,9 @@
                             apiData.lp_research_url = data.lp_research_url;
                         }
                         
+                        console.log('API送信データ (ファイルなし):', apiData);
+                        console.log('API送信JSON:', JSON.stringify(apiData));
+                        
                         fetch('https://magiclpo-ai-new-1022361978287.us-central1.run.app/', {
                             method: 'POST',
                             headers: {
@@ -517,8 +532,12 @@
                             body: JSON.stringify(apiData)
                         })
                         .then(response => {
+                            console.log('APIレスポンスステータス:', response.status, response.statusText);
                             if (!response.ok) {
-                                throw new Error('API request failed');
+                                return response.text().then(text => {
+                                    console.error('APIエラーレスポンス本文:', text);
+                                    throw new Error('API request failed');
+                                });
                             }
                             return response.json();
                         })
