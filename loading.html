@@ -251,17 +251,32 @@
                 // URLを設定
                 let apiUrl;
                 if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                    apiUrl = 'http://localhost:8080/check';
+                    apiUrl = 'http://localhost:8080';
                 } else {
-                    apiUrl = 'https://magiclpo-ai-new-1022361978287.us-central1.run.app/check';
+                    apiUrl = 'https://magiclpo-ai-new-1022361978287.us-central1.run.app';
                 }
 
-                // Fetch APIを使用してサーバーから進捗状況を取得
-                fetch(apiUrl + '?id=' + analysisId)
+                // POSTリクエストのデータを作成
+                const requestData = {
+                    command: "get_analysis",
+                    analysis_id: analysisId
+                };
+
+                // Fetch APIを使用してサーバーから進捗状況を取得（POSTリクエスト）
+                fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                })
                     .then(response => {
                         clearTimeout(timeoutId);
                         if (!response.ok) {
-                            throw new Error(`サーバーエラー: ${response.status}`);
+                            return response.text().then(text => {
+                                console.error('エラーレスポンス本文:', text);
+                                throw new Error(`サーバーエラー: ${response.status}`);
+                            });
                         }
                         return response.json();
                     })
@@ -269,37 +284,59 @@
                         // リトライカウンターをリセット
                         retryCount = 0;
                         
-                        // 進捗バーを更新
-                        progressBar.style.width = `${data.progress}%`;
+                        // データの構造を確認
+                        console.log('サーバーレスポンス:', data);
                         
-                        // 完了または失敗の場合
-                        if (data.status === 'completed') {
+                        // 分析データがあるか確認
+                        if (data.status === 'success' && data.data) {
+                            const analysisData = data.data;
+                            
+                            // 進捗バーを100%に設定（完了）
+                            progressBar.style.width = '100%';
+                            
+                            // 分析完了とみなす
                             loadingContainer.style.display = 'none';
                             resultContainer.style.display = 'block';
                             
-                            // ダウンロードボタンの設定
-                            if (data.result_url) {
-                                document.getElementById('downloadBtn').href = data.result_url;
-                            }
+                            // 結果URLの生成（オプション）
+                            const resultUrl = `result.html?analysis_id=${analysisId}`;
+                            document.getElementById('downloadBtn').href = resultUrl;
                             
                             // ポーリングを停止
                             clearInterval(progressInterval);
                         } else if (data.status === 'error') {
-                            showError(data.error || '分析中にエラーが発生しました。');
+                            // エラーの場合
+                            showError(data.message || '分析中にエラーが発生しました。');
                             clearInterval(progressInterval);
                         } else {
-                            // 処理中のステータステキストを更新
-                            if (data.progress < 20) {
-                                statusText.textContent = 'データを収集中...';
-                            } else if (data.progress < 40) {
-                                statusText.textContent = 'GA4データを分析中...';
-                            } else if (data.progress < 60) {
-                                statusText.textContent = 'LPを分析中...';
-                            } else if (data.progress < 80) {
-                                statusText.textContent = 'ヒートマップを分析中...';
+                            // まだ処理中の場合は進捗表示を更新
+                            // 進捗の割合を推定（実際のAPIの仕様に応じて調整）
+                            let progress = 50; // デフォルト値
+                            
+                            if (data.data && data.data.status) {
+                                const analysisData = data.data;
+                                switch(analysisData.status) {
+                                    case 'started':
+                                        progress = 20;
+                                        statusText.textContent = 'データを収集中...';
+                                        break;
+                                    case 'processing':
+                                        progress = 50;
+                                        statusText.textContent = 'データを分析中...';
+                                        break;
+                                    case 'completed':
+                                        progress = 100;
+                                        break;
+                                    default:
+                                        progress = 40;
+                                        statusText.textContent = 'GA4データを分析中...';
+                                }
                             } else {
-                                statusText.textContent = '最終分析結果を生成中...';
+                                // データが取得できない場合、デフォルトの進捗表示
+                                statusText.textContent = 'サーバーに問い合わせ中...';
                             }
+                            
+                            progressBar.style.width = `${progress}%`;
                         }
                     })
                     .catch(error => {
