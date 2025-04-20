@@ -440,7 +440,7 @@
                         Promise.all(uploadPromises)
                             .then(() => {
                                 // Cloud Run関数にPOSTリクエスト
-                                return fetch('https://magiclpo-ai-1022361978287.asia-northeast1.run.app', {
+                                return fetch('https://magiclpo-ai-new-1022361978287.us-central1.run.app/', {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json',
@@ -468,7 +468,7 @@
                             });
                     } else {
                         // ファイルアップロードがない場合、直接APIリクエスト
-                        fetch('https://magiclpo-ai-1022361978287.asia-northeast1.run.app', {
+                        fetch('https://magiclpo-ai-new-1022361978287.us-central1.run.app/', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
