@@ -153,6 +153,27 @@
             background-repeat: no-repeat;
             background-position: center;
         }
+
+        .error-container {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .error-icon {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin-bottom: 20px;
+        }
+        
+        .error-message {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -175,6 +196,13 @@
                 結果をダウンロード（MD）
             </a>
             <a href="purple_form.html" class="btn">トップに戻る</a>
+        </div>
+        
+        <div class="error-container" id="errorContainer">
+            <div class="error-icon"></div>
+            <div class="error-message" id="errorMessage">エラーが発生しました</div>
+            <a href="purple_form.html" class="btn">トップに戻る</a>
+            <button id="retryBtn" class="btn">再試行</button>
         </div>
     </div>
 
@@ -199,19 +227,48 @@
             
             const loadingContainer = document.getElementById('loadingContainer');
             const resultContainer = document.getElementById('resultContainer');
+            const errorContainer = document.getElementById('errorContainer');
             const progressBar = document.getElementById('progressBar');
             const statusText = document.getElementById('statusText');
+            const errorMessage = document.getElementById('errorMessage');
+            const retryBtn = document.getElementById('retryBtn');
+            
+            // 再試行カウンターとタイムアウトID
+            let retryCount = 0;
+            const MAX_RETRIES = 5;
+            let progressInterval;
+            let timeoutId;
+            
+            // エラー表示関数
+            function showError(message) {
+                errorMessage.textContent = message;
+                loadingContainer.style.display = 'none';
+                errorContainer.style.display = 'block';
+            }
             
             // 進捗状況を確認する関数
             function checkProgress() {
-                fetch(`https://magiclpo-ai-1022361978287.asia-northeast1.run.app/?analysis_id=${analysisId}`)
+                // URLを設定
+                let apiUrl;
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    apiUrl = 'http://localhost:8080/check';
+                } else {
+                    apiUrl = 'https://magiclpo-ai-new-1022361978287.us-central1.run.app/check';
+                }
+
+                // Fetch APIを使用してサーバーから進捗状況を取得
+                fetch(apiUrl + '?id=' + analysisId)
                     .then(response => {
+                        clearTimeout(timeoutId);
                         if (!response.ok) {
-                            throw new Error('Progress check failed');
+                            throw new Error(`サーバーエラー: ${response.status}`);
                         }
                         return response.json();
                     })
                     .then(data => {
+                        // リトライカウンターをリセット
+                        retryCount = 0;
+                        
                         // 進捗バーを更新
                         progressBar.style.width = `${data.progress}%`;
                         
@@ -228,14 +285,8 @@
                             // ポーリングを停止
                             clearInterval(progressInterval);
                         } else if (data.status === 'error') {
-                            statusText.textContent = '分析中にエラーが発生しました。';
+                            showError(data.error || '分析中にエラーが発生しました。');
                             clearInterval(progressInterval);
-                            
-                            // 5秒後にトップページに戻る
-                            setTimeout(() => {
-                                alert('処理中にエラーが発生しました。もう一度お試しください。');
-                                window.location.href = 'purple_form.html';
-                            }, 5000);
                         } else {
                             // 処理中のステータステキストを更新
                             if (data.progress < 20) {
@@ -252,19 +303,41 @@
                         }
                     })
                     .catch(error => {
+                        clearTimeout(timeoutId);
                         console.error('Error:', error);
+                        
+                        if (retryCount < MAX_RETRIES) {
+                            retryCount++;
+                            statusText.textContent = `接続を再試行中... (${retryCount}/${MAX_RETRIES})`;
+                        } else {
+                            showError('サーバーに接続できません。ネットワーク接続を確認してください。');
+                            clearInterval(progressInterval);
+                        }
                     });
             }
+            
+            // 再試行ボタンのイベントリスナー
+            retryBtn.addEventListener('click', function() {
+                errorContainer.style.display = 'none';
+                loadingContainer.style.display = 'block';
+                retryCount = 0;
+                statusText.textContent = 'データを分析中...';
+                
+                // チェックを再開
+                checkProgress();
+                progressInterval = setInterval(checkProgress, 3000);
+            });
             
             // 初回チェック
             checkProgress();
             
             // 3秒ごとに進捗をチェック
-            const progressInterval = setInterval(checkProgress, 3000);
+            progressInterval = setInterval(checkProgress, 3000);
             
-            // ページ離脱時にインターバルをクリア
+            // ページ離脱時にインターバルとタイムアウトをクリア
             window.addEventListener('beforeunload', function() {
                 clearInterval(progressInterval);
+                clearTimeout(timeoutId);
             });
         });
     </script>
