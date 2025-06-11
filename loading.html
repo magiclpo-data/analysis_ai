@@ -181,11 +181,13 @@
                  return;
              }
  
-             // URLパラメータから分析データを取得
-             const urlParams = new URLSearchParams(window.location.search);
-             const propertyId = urlParams.get('property_id');
-             const startDate = urlParams.get('start_date');
-             const endDate = urlParams.get('end_date');
+                         // URLパラメータから分析データを取得
+            const urlParams = new URLSearchParams(window.location.search);
+            const propertyId = urlParams.get('property_id');
+            const startDate = urlParams.get('start_date');
+            const endDate = urlParams.get('end_date');
+            const selectedGA4Type = urlParams.get('selected_ga4_type');
+            const pdfFile = urlParams.get('pdf_file');
  
              const loadingContainer = document.getElementById('loadingContainer');
              const resultContainer = document.getElementById('resultContainer');
@@ -195,18 +197,22 @@
                  resultContainer.style.display = 'block';
              }, 9520);
  
-             // PDFダウンロードボタンのクリックイベント
-             document.getElementById('downloadBtn').addEventListener('click', function(e) {
-                 e.preventDefault();
- 
-                 // ダウンロード用のリンク要素を作成
-                 const link = document.createElement('a');
-                 link.href = 'analysis.pdf';
-                 link.download = `分析レポート_${propertyId}_${startDate}-${endDate}.pdf`;
-                 document.body.appendChild(link);
-                 link.click();
-                 document.body.removeChild(link);
-             });
+                         // PDFダウンロードボタンのクリックイベント
+            document.getElementById('downloadBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+
+                // 選択されたGA4に応じたPDFファイルを使用
+                const pdfFileName = pdfFile || 'analysis.pdf';
+                const ga4Name = selectedGA4Type || 'default';
+
+                // ダウンロード用のリンク要素を作成
+                const link = document.createElement('a');
+                link.href = pdfFileName;
+                link.download = `分析レポート_${ga4Name}_${startDate}-${endDate}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
          });
      </script>
  </body>
