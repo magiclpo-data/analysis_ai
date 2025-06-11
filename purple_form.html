@@ -481,26 +481,32 @@
                 cucua: {
                     name: 'Cucua',
                     propertyId: '262336548',
-                    url: 'https://cucua.com',
-                    cvEvent: 'purchase',
-                    path: '/landing',
-                    pdfFile: 'analysis_cucua.pdf'
+                    url: 'https://cucua.fun/auc',
+                    cvEvent: 'click_lpo',
+                    path: '/auc/',
+                    pdfFile: 'Cucua.pdf',
+                    startDate: '2025-05-01',
+                    endDate: '2025-05-31'
                 },
                 freeweb: {
                     name: '[総合版]FREE WEB HOPE',
-                    propertyId: '123456789',
-                    url: 'https://freeweb-hope.com',
-                    cvEvent: 'conversion',
-                    path: '/top',
-                    pdfFile: 'analysis_freeweb.pdf'
+                    propertyId: '24964833',
+                    url: 'https://https://marketing.fwh.co.jp/',
+                    cvEvent: 'click_lpo',
+                    path: '/works/',
+                    pdfFile: '総合版FREEWEBHOPE.pdf',
+                    startDate: '2025-05-01',
+                    endDate: '2025-05-15'
                 },
                 cuel: {
                     name: 'Cuel',
-                    propertyId: '987654321',
-                    url: 'https://cuel.jp',
-                    cvEvent: 'lead',
-                    path: '/home',
-                    pdfFile: 'analysis_cuel.pdf'
+                    propertyId: '354817553',
+                    url: 'https://cuel.co.jp/',
+                    cvEvent: 'user_engagement',
+                    path: '/',
+                    pdfFile: 'Cuel.pdf',
+                    startDate: '2025-05-01',
+                    endDate: '2025-05-31'
                 }
             };
             
@@ -595,13 +601,9 @@
                 document.getElementById('selected_ga4_type').value = selectedGA4Value;
                 document.getElementById('pdf_file').value = preset.pdfFile;
                 
-                // 日付のデフォルト値（7日前から今日まで）
-                const today = new Date();
-                const oneWeekAgo = new Date(today);
-                oneWeekAgo.setDate(today.getDate() - 7);
-                
-                startDateInput.value = oneWeekAgo.toISOString().split('T')[0];
-                endDateInput.value = today.toISOString().split('T')[0];
+                // 各GA4プリセットの個別日付を設定
+                startDateInput.value = preset.startDate;
+                endDateInput.value = preset.endDate;
             }
 
             // 外部クリックでプルダウンを閉じる
