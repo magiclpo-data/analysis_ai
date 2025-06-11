@@ -188,6 +188,132 @@
             margin-left: 4px;
         }
         
+        /* プルダウンのスタイル */
+        .dropdown-container {
+            position: relative;
+            display: block;
+        }
+        
+        .dropdown-select {
+            width: 100%;
+        }
+        
+        .dropdown-toggle {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            padding: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .dropdown-toggle:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: white;
+        }
+        
+        .dropdown-arrow {
+            transition: transform 0.3s ease;
+            font-size: 12px;
+        }
+        
+        .dropdown-arrow.open {
+            transform: rotate(180deg);
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .dropdown-menu.show {
+            display: block;
+        }
+        
+        .dropdown-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            color: #333;
+            transition: background-color 0.2s ease;
+            font-size: 14px;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(106, 17, 203, 0.1);
+        }
+        
+        .dropdown-item:first-child {
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .dropdown-item:last-child {
+            border-radius: 0 0 8px 8px;
+        }
+        
+        /* 詳細設定のスタイル */
+        .details-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .details-container.collapsed {
+            max-height: 0;
+            padding: 0 20px;
+            overflow: hidden;
+            border: none;
+            background: transparent;
+        }
+        
+        .details-toggle {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 0;
+            margin-top: 10px;
+            margin-left: 0;
+            transition: opacity 0.3s ease;
+            width: 100%;
+        }
+        
+        .details-toggle:hover {
+            opacity: 0.8;
+        }
+        
+        .details-arrow {
+            transition: transform 0.3s ease;
+            font-size: 12px;
+        }
+        
+        .details-arrow.open {
+            transform: rotate(180deg);
+        }
+        
         /* レスポンシブ対応 */
         @media (min-width: 768px) {
             .form-row {
@@ -227,70 +353,108 @@
     <div class="form-container">
         <h1>分析改善提案</h1>
         <form id="heatmapForm">
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="property_id" class="required">プロパティID</label>
-                    <input type="password" id="property_id" name="property_id" class="form-control" placeholder="プロパティIDを入力" required value="262336548">
-                    <p class="error-message" id="propertyIdError">プロパティIDを入力してください</p>
+            <!-- 対象GA4プルダウン -->
+            <div class="form-group">
+                <label class="required">対象GA4：</label>
+                <div class="dropdown-container">
+                    <div class="dropdown-select">
+                        <div class="dropdown-toggle" id="ga4-dropdown">
+                            <span id="selected-ga4">対象GA4を選択してください</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </div>
+                        <div class="dropdown-menu" id="ga4-menu">
+                            <div class="dropdown-item" data-value="cucua">Cucua</div>
+                            <div class="dropdown-item" data-value="freeweb">[総合版]FREE WEB HOPE</div>
+                            <div class="dropdown-item" data-value="cuel">Cuel</div>
+                        </div>
+                    </div>
                 </div>
+                <p class="error-message" id="ga4Error">対象GA4を選択してください</p>
+                
+                <button type="button" class="details-toggle" id="details-toggle">
+                    詳細設定
+                    <span class="details-arrow">▼</span>
+                </button>
+            </div>
+
+            <!-- 詳細設定コンテナ -->
+            <div class="details-container collapsed" id="details-container">
+                <div class="form-group">
+                    <label for="prompt">プロンプト</label>
+                    <textarea id="prompt" name="prompt" class="form-control" placeholder="プロンプトを入力（オプション）"></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="start_date" class="required">開始日付</label>
+                        <input type="date" id="start_date" name="start_date" class="form-control" required>
+                        <p class="error-message" id="startDateError">開始日を選択してください</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="end_date" class="required">終了日付</label>
+                        <input type="date" id="end_date" name="end_date" class="form-control" required>
+                        <p class="error-message" id="endDateError">終了日を選択してください</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>ヒートマップデータ</label>
+                    <div class="upload-container">
+                        <label for="heatmapFileUpload" class="upload-btn">
+                            <i class="fa fa-upload"></i>
+                            ローカルアップロード
+                        </label>
+                        <label for="heatmapLinkUpload" class="upload-btn">
+                            <i class="fa fa-link"></i>
+                            ファイルリンク
+                        </label>
+                    </div>
+                    <input type="file" id="heatmapFileUpload" name="heatmap_file" style="display: none;">
+                    <input type="text" id="heatmapLinkUpload" name="heatmap_url" style="display: none;" class="form-control" placeholder="ヒートマップファイルURLを入力">
+                </div>
+
                 <div class="form-group">
                     <label for="url" class="required">URL</label>
                     <input type="url" id="url" name="url" class="form-control" placeholder="URLを入力" required>
                     <p class="error-message" id="urlError">URLを入力してください</p>
                 </div>
-            </div>
-            
-            <div class="form-row">
+
                 <div class="form-group">
-                    <label for="start_date" class="required">開始日</label>
-                    <input type="date" id="start_date" name="start_date" class="form-control" required>
-                    <p class="error-message" id="startDateError">開始日を選択してください</p>
+                    <label>LP_Researchデータ</label>
+                    <div class="upload-container">
+                        <label for="lpFileUpload" class="upload-btn">
+                            <i class="fa fa-upload"></i>
+                            ローカルアップロード
+                        </label>
+                        <label for="lpLinkUpload" class="upload-btn">
+                            <i class="fa fa-link"></i>
+                            ファイルリンク
+                        </label>
+                    </div>
+                    <input type="file" id="lpFileUpload" name="lp_research_file" style="display: none;">
+                    <input type="text" id="lpLinkUpload" name="lp_research_url" style="display: none;" class="form-control" placeholder="LP_ResearchファイルURLを入力">
                 </div>
-                
-                <div class="form-group">
-                    <label for="end_date" class="required">終了日</label>
-                    <input type="date" id="end_date" name="end_date" class="form-control" required>
-                    <p class="error-message" id="endDateError">終了日を選択してください</p>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cv_event" class="required">cv_event</label>
+                        <input type="text" id="cv_event" name="cv_event" class="form-control" placeholder="cv_eventを入力" required>
+                        <p class="error-message" id="cvEventError">cv_eventを入力してください</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="path" class="required">パス</label>
+                        <input type="text" id="path" name="path" class="form-control" placeholder="パスを入力" required>
+                        <p class="error-message" id="pathError">パスを入力してください</p>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="prompt">プロンプト</label>
-                <textarea id="prompt" name="prompt" class="form-control" placeholder="プロンプトを入力（オプション）"></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label class="required">ヒートマップ画像</label>
-                <div class="upload-container">
-                    <label for="fileUpload" class="upload-btn">
-                        <i class="fa fa-upload"></i>
-                        ローカルアップロード
-                    </label>
-                    <label for="linkUpload" class="upload-btn">
-                        <i class="fa fa-link"></i>
-                        ファイルリンク
-                    </label>
-                </div>
-                <input type="file" id="fileUpload" name="heatmap_image" style="display: none;">
-                <input type="text" id="linkUpload" name="image_url" style="display: none;" class="form-control" placeholder="画像URLを入力">
-                <p class="error-message" id="heatmapError">ヒートマップ画像をアップロードまたはURLを入力してください</p>
-            </div>
-            
-            <div class="form-group">
-                <label class="required">LP_Research</label>
-                <div class="upload-container">
-                    <label for="lpFileUpload" class="upload-btn">
-                        <i class="fa fa-upload"></i>
-                        ローカルアップロード
-                    </label>
-                    <label for="lpLinkUpload" class="upload-btn">
-                        <i class="fa fa-link"></i>
-                        ファイルリンク
-                    </label>
-                </div>
-                <input type="file" id="lpFileUpload" name="lp_research_file" style="display: none;">
-                <input type="text" id="lpLinkUpload" name="lp_research_url" style="display: none;" class="form-control" placeholder="ファイルURLを入力">
-                <p class="error-message" id="lpResearchError">LP_ResearchファイルをアップロードまたはURLを入力してください</p>
+
+                <!-- プロパティIDを隠しフィールドとして保持 -->
+                <input type="hidden" id="property_id" name="property_id" value="">
+                <!-- 選択されたGA4とPDFファイルを隠しフィールドとして保持 -->
+                <input type="hidden" id="selected_ga4_type" name="selected_ga4_type" value="">
+                <input type="hidden" id="pdf_file" name="pdf_file" value="">
             </div>
             
             <button type="submit" class="btn-primary">
@@ -312,24 +476,141 @@
                 return;
             }
             
+            // GA4プリセット設定
+            const ga4Presets = {
+                cucua: {
+                    name: 'Cucua',
+                    propertyId: '262336548',
+                    url: 'https://cucua.com',
+                    cvEvent: 'purchase',
+                    path: '/landing',
+                    pdfFile: 'analysis_cucua.pdf'
+                },
+                freeweb: {
+                    name: '[総合版]FREE WEB HOPE',
+                    propertyId: '123456789',
+                    url: 'https://freeweb-hope.com',
+                    cvEvent: 'conversion',
+                    path: '/top',
+                    pdfFile: 'analysis_freeweb.pdf'
+                },
+                cuel: {
+                    name: 'Cuel',
+                    propertyId: '987654321',
+                    url: 'https://cuel.jp',
+                    cvEvent: 'lead',
+                    path: '/home',
+                    pdfFile: 'analysis_cuel.pdf'
+                }
+            };
+            
             // フォームの要素を取得
             const form = document.getElementById('heatmapForm');
             const propertyIdInput = document.getElementById('property_id');
             const urlInput = document.getElementById('url');
             const startDateInput = document.getElementById('start_date');
             const endDateInput = document.getElementById('end_date');
-            const fileUpload = document.getElementById('fileUpload');
-            const linkUpload = document.getElementById('linkUpload');
+            const cvEventInput = document.getElementById('cv_event');
+            const pathInput = document.getElementById('path');
+            const heatmapFileUpload = document.getElementById('heatmapFileUpload');
+            const heatmapLinkUpload = document.getElementById('heatmapLinkUpload');
             const lpFileUpload = document.getElementById('lpFileUpload');
             const lpLinkUpload = document.getElementById('lpLinkUpload');
 
+            // プルダウン関連要素
+            const ga4Dropdown = document.getElementById('ga4-dropdown');
+            const ga4Menu = document.getElementById('ga4-menu');
+            const selectedGA4 = document.getElementById('selected-ga4');
+            const dropdownArrow = ga4Dropdown.querySelector('.dropdown-arrow');
+            
+            // 詳細設定関連要素
+            const detailsToggle = document.getElementById('details-toggle');
+            const detailsContainer = document.getElementById('details-container');
+            const detailsArrow = detailsToggle.querySelector('.details-arrow');
+
             // エラーメッセージ要素
-            const propertyIdError = document.getElementById('propertyIdError');
+            const ga4Error = document.getElementById('ga4Error');
             const urlError = document.getElementById('urlError');
             const startDateError = document.getElementById('startDateError');
             const endDateError = document.getElementById('endDateError');
-            const heatmapError = document.getElementById('heatmapError');
-            const lpResearchError = document.getElementById('lpResearchError');
+            const cvEventError = document.getElementById('cvEventError');
+            const pathError = document.getElementById('pathError');
+
+            // 選択されたGA4
+            let selectedGA4Value = null;
+
+            // プルダウンの開閉
+            ga4Dropdown.addEventListener('click', () => {
+                const isOpen = ga4Menu.classList.contains('show');
+                if (isOpen) {
+                    ga4Menu.classList.remove('show');
+                    dropdownArrow.classList.remove('open');
+                } else {
+                    ga4Menu.classList.add('show');
+                    dropdownArrow.classList.add('open');
+                }
+            });
+
+            // プルダウンアイテムの選択
+            ga4Menu.addEventListener('click', (e) => {
+                if (e.target.classList.contains('dropdown-item')) {
+                    const value = e.target.getAttribute('data-value');
+                    const preset = ga4Presets[value];
+                    
+                    selectedGA4Value = value;
+                    selectedGA4.textContent = preset.name;
+                    
+                    // デフォルト値の設定
+                    setDefaultValues(preset);
+                    
+                    // プルダウンを閉じる
+                    ga4Menu.classList.remove('show');
+                    dropdownArrow.classList.remove('open');
+                    
+                    // エラーメッセージを非表示
+                    ga4Error.style.display = 'none';
+                }
+            });
+
+            // 詳細設定の開閉
+            detailsToggle.addEventListener('click', () => {
+                const isCollapsed = detailsContainer.classList.contains('collapsed');
+                if (isCollapsed) {
+                    detailsContainer.classList.remove('collapsed');
+                    detailsArrow.classList.add('open');
+                } else {
+                    detailsContainer.classList.add('collapsed');
+                    detailsArrow.classList.remove('open');
+                }
+            });
+
+            // デフォルト値設定関数
+            function setDefaultValues(preset) {
+                propertyIdInput.value = preset.propertyId;
+                urlInput.value = preset.url;
+                cvEventInput.value = preset.cvEvent;
+                pathInput.value = preset.path;
+                
+                // 選択されたGA4タイプとPDFファイルを設定
+                document.getElementById('selected_ga4_type').value = selectedGA4Value;
+                document.getElementById('pdf_file').value = preset.pdfFile;
+                
+                // 日付のデフォルト値（7日前から今日まで）
+                const today = new Date();
+                const oneWeekAgo = new Date(today);
+                oneWeekAgo.setDate(today.getDate() - 7);
+                
+                startDateInput.value = oneWeekAgo.toISOString().split('T')[0];
+                endDateInput.value = today.toISOString().split('T')[0];
+            }
+
+            // 外部クリックでプルダウンを閉じる
+            document.addEventListener('click', (e) => {
+                if (!ga4Dropdown.contains(e.target) && !ga4Menu.contains(e.target)) {
+                    ga4Menu.classList.remove('show');
+                    dropdownArrow.classList.remove('open');
+                }
+            });
 
             // 入力フィールドのバリデーション関数
             function validateField(input, errorElement) {
@@ -344,13 +625,13 @@
                 }
             }
 
-            // ファイルアップロードのバリデーション関数
-            function validateFileUpload(fileInput, linkInput, errorElement) {
-                if (!fileInput.files.length && !linkInput.value) {
-                    errorElement.style.display = 'block';
+            // GA4選択のバリデーション関数
+            function validateGA4Selection() {
+                if (!selectedGA4Value) {
+                    ga4Error.style.display = 'block';
                     return false;
                 } else {
-                    errorElement.style.display = 'none';
+                    ga4Error.style.display = 'none';
                     return true;
                 }
             }
@@ -360,12 +641,12 @@
                 e.preventDefault();
                 
                 // 各フィールドのバリデーション
-                const isPropertyIdValid = validateField(propertyIdInput, propertyIdError);
+                const isGA4Valid = validateGA4Selection();
                 const isUrlValid = validateField(urlInput, urlError);
                 const isStartDateValid = validateField(startDateInput, startDateError);
                 const isEndDateValid = validateField(endDateInput, endDateError);
-                const isHeatmapValid = validateFileUpload(fileUpload, linkUpload, heatmapError);
-                const isLpResearchValid = validateFileUpload(lpFileUpload, lpLinkUpload, lpResearchError);
+                const isCvEventValid = validateField(cvEventInput, cvEventError);
+                const isPathValid = validateField(pathInput, pathError);
 
                 // 日付の比較バリデーション
                 if (isStartDateValid && isEndDateValid) {
@@ -378,8 +659,8 @@
                 }
 
                 // すべてのバリデーションが成功した場合のみ送信処理を実行
-                if (isPropertyIdValid && isUrlValid && isStartDateValid && isEndDateValid && 
-                    isHeatmapValid && isLpResearchValid) {
+                if (isGA4Valid && isUrlValid && isStartDateValid && isEndDateValid && 
+                    isCvEventValid && isPathValid) {
                     // アニメーション効果
                     const submitBtn = document.querySelector('.btn-primary');
                     submitBtn.style.opacity = '0.8';
@@ -403,40 +684,36 @@
                 }
             });
 
-            // 初期値の設定
-            document.getElementById('start_date').value = '2025-04-03';
-            document.getElementById('end_date').value = '2025-04-10';
-            
-            document.getElementById('fileUpload').addEventListener('change', function(e) {
+            // ヒートマップファイルアップロード処理
+            heatmapFileUpload.addEventListener('change', function(e) {
                 if (this.files && this.files[0]) {
                     const fileName = this.files[0].name;
-                    document.querySelector('.fa-upload').parentElement.textContent = fileName;
-                    document.querySelector('.fa-upload').parentElement.prepend(document.createElement('i'));
-                    document.querySelector('.fa-upload').parentElement.firstChild.className = 'fa fa-upload';
+                    const uploadBtn = document.querySelector('label[for="heatmapFileUpload"]');
+                    uploadBtn.innerHTML = `<i class="fa fa-upload"></i> ${fileName}`;
                 }
             });
-            
-            document.querySelector('.fa-link').parentElement.addEventListener('click', function() {
-                const linkInput = document.getElementById('linkUpload');
+
+            // ヒートマップファイルリンクボタンクリック時の処理
+            document.querySelector('label[for="heatmapLinkUpload"]').addEventListener('click', function() {
+                const linkInput = heatmapLinkUpload;
                 linkInput.style.display = linkInput.style.display === 'none' ? 'block' : 'none';
                 if (linkInput.style.display === 'block') {
                     linkInput.focus();
                 }
             });
             
-            // LP_Research ファイルアップロード表示用
-            document.getElementById('lpFileUpload').addEventListener('change', function(e) {
+            // LP_Research ファイルアップロード処理
+            lpFileUpload.addEventListener('change', function(e) {
                 if (this.files && this.files[0]) {
                     const fileName = this.files[0].name;
-                    this.previousElementSibling.textContent = fileName;
-                    this.previousElementSibling.prepend(document.createElement('i'));
-                    this.previousElementSibling.firstChild.className = 'fa fa-upload';
+                    const uploadBtn = document.querySelector('label[for="lpFileUpload"]');
+                    uploadBtn.innerHTML = `<i class="fa fa-upload"></i> ${fileName}`;
                 }
             });
             
             // LP_Research ファイルリンクボタンクリック時の処理
             document.querySelector('label[for="lpLinkUpload"]').addEventListener('click', function() {
-                const linkInput = document.getElementById('lpLinkUpload');
+                const linkInput = lpLinkUpload;
                 linkInput.style.display = linkInput.style.display === 'none' ? 'block' : 'none';
                 if (linkInput.style.display === 'block') {
                     linkInput.focus();
