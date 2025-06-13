@@ -380,6 +380,12 @@
             <!-- 詳細設定コンテナ -->
             <div class="details-container collapsed" id="details-container">
                 <div class="form-group">
+                    <label for="property_id_visible" class="required">プロパティID</label>
+                    <input type="password" id="property_id_visible" name="property_id_visible" class="form-control" placeholder="プロパティIDを入力" required>
+                    <p class="error-message" id="propertyIdError">プロパティIDを入力してください</p>
+                </div>
+
+                <div class="form-group">
                     <label for="prompt">プロンプト</label>
                     <textarea id="prompt" name="prompt" class="form-control" placeholder="プロンプトを入力（オプション）"></textarea>
                 </div>
@@ -481,7 +487,7 @@
                 cucua: {
                     name: 'Cucua',
                     propertyId: '262336548',
-                    url: 'https://cucua.fun/',
+                    url: 'https://cucua.fun/auc',
                     cvEvent: 'click_lpo',
                     path: '/',
                     pdfFile: 'Cucua.pdf',
@@ -513,6 +519,7 @@
             // フォームの要素を取得
             const form = document.getElementById('heatmapForm');
             const propertyIdInput = document.getElementById('property_id');
+            const propertyIdVisibleInput = document.getElementById('property_id_visible');
             const urlInput = document.getElementById('url');
             const startDateInput = document.getElementById('start_date');
             const endDateInput = document.getElementById('end_date');
@@ -536,6 +543,7 @@
 
             // エラーメッセージ要素
             const ga4Error = document.getElementById('ga4Error');
+            const propertyIdError = document.getElementById('propertyIdError');
             const urlError = document.getElementById('urlError');
             const startDateError = document.getElementById('startDateError');
             const endDateError = document.getElementById('endDateError');
@@ -593,6 +601,7 @@
             // デフォルト値設定関数
             function setDefaultValues(preset) {
                 propertyIdInput.value = preset.propertyId;
+                propertyIdVisibleInput.value = preset.propertyId;
                 urlInput.value = preset.url;
                 cvEventInput.value = preset.cvEvent;
                 pathInput.value = preset.path;
@@ -612,6 +621,11 @@
                     ga4Menu.classList.remove('show');
                     dropdownArrow.classList.remove('open');
                 }
+            });
+
+            // プロパティIDの同期
+            propertyIdVisibleInput.addEventListener('input', function() {
+                propertyIdInput.value = this.value;
             });
 
             // 入力フィールドのバリデーション関数
@@ -644,6 +658,7 @@
                 
                 // 各フィールドのバリデーション
                 const isGA4Valid = validateGA4Selection();
+                const isPropertyIdValid = validateField(propertyIdVisibleInput, propertyIdError);
                 const isUrlValid = validateField(urlInput, urlError);
                 const isStartDateValid = validateField(startDateInput, startDateError);
                 const isEndDateValid = validateField(endDateInput, endDateError);
@@ -661,7 +676,7 @@
                 }
 
                 // すべてのバリデーションが成功した場合のみ送信処理を実行
-                if (isGA4Valid && isUrlValid && isStartDateValid && isEndDateValid && 
+                if (isGA4Valid && isPropertyIdValid && isUrlValid && isStartDateValid && isEndDateValid && 
                     isCvEventValid && isPathValid) {
                     // アニメーション効果
                     const submitBtn = document.querySelector('.btn-primary');
